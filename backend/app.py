@@ -205,8 +205,6 @@ def delete_meeting(meeting_id):
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    if os.environ.get("RENDER"):
-        socketio.run(app, host="0.0.0.0", port=5000)
-    else:
-        socketio.run(app, debug=True)
+    socketio.run(app)
+
 
