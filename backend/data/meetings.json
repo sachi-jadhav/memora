@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1766669180,
+    "title": "Meeting 25 Dec 2025",
+    "date": "25 Dec 2025, 06:56 PM",
+    "duration": "00:00:51",
+    "transcript": "Today we discuss the progress of the meeting minutes after... the transcription feature is working well, but we should improve the accuracy. and test it with longer conversations. John will update the use. interface by Friday we need to fix the delete functionality testing. and assign the documentation to Stupriya. By next week, the team shows you view the final implementation and prepare the project for submission.",
+    "summary": "We discuss the progress of the meeting minutes after... the transcription feature is working well, but we should improve the accuracy. and test it with longer conversations. John will update the use. interface by Friday we need to fix the delete functionality testing and assign the documentation to Stupriya.",
+    "actions": [
+      "John will update the use",
+      "interface by Friday we need to fix the delete functionality testing",
+      "and assign the documentation to Stupriya"
+    ]
+  }
+]

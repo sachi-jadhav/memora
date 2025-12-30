@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Live Recording | MoM</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f5f7fb;
+      color: #1f2937;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar {
+      width: 240px;
+      background: linear-gradient(180deg, #0f172a, #1e293b);
+      color: #fff;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 32px;
+    }
+
+    .nav a {
+      display: block;
+      padding: 12px 16px;
+      border-radius: 10px;
+      color: #cbd5f5;
+      text-decoration: none;
+      margin-bottom: 8px;
+    }
+
+    .nav a.active,
+    .nav a:hover {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .privacy {
+      margin-top: auto;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    /* ---------- MAIN ---------- */
+    .main {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    .header {
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin: 0;
+    }
+
+    /* ---------- STATUS ---------- */
+    .status-pill {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .status-pill.recording {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    /* ---------- CONTROLS ---------- */
+    .controls {
+      margin: 14px 0 24px;
+    }
+
+    .controls button {
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+
+    .start {
+      background: #22c55e;
+      color: #fff;
+    }
+
+    .stop {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    /* ---------- CARDS ---------- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    #transcriptBox {
+      height: 240px;
+      overflow-y: auto;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    #transcriptBox p {
+      margin: 6px 0;
+    }
+
+    .placeholder {
+      color: #9ca3af;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">Memora</div>
+
+    <nav class="nav">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/recording" class="active">New Recording</a>
+      <a href="/meetings">All Meetings</a>
+    </nav>
+
+    <div class="privacy">
+      ● 100% Private<br/>
+      Data stored locally
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="header">
+      <h1>Live Meeting Recording</h1>
+    </div>
+
+    <span id="status" class="status-pill">Idle</span>
+
+    <div style="margin: 10px 0; font-size: 15px;">
+      ⏱️ <strong>Recording Time:</strong>
+      <span id="timer">00:00:00</span>
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" class="start">Start Recording</button>
+      <button id="stopBtn" class="stop" disabled>End Recording</button>
+    </div>
+
+    <div class="grid">
+
+      <div class="card">
+  <h3>Live Transcript</h3>
+  <div id="transcriptBox">
+    <p class="placeholder">
+      🎙️ Live transcript will appear here once recording starts.
+    </p>
+  </div>
+</div>
+
+      <div class="card">
+  <h3>Meeting Summary</h3>
+  <div id="summaryBox">
+    Summary will be generated after the meeting ends.
+  </div>
+</div>
+
+      <div class="card">
+  <h3>Action Items</h3>
+  <ul id="actionBox">
+    <li class="placeholder">Action items will appear here.</li>
+  </ul>
+</div>
+
+    </div>
+
+  </main>
+<script>
+  if (localStorage.getItem("loggedIn") !== "true") {
+    window.location.href = "/";
+  }
+</script>
+
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <script src="/static/recorder.js"></script>
+
+</body>
+</html>
