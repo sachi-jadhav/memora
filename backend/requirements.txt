@@ -5,3 +5,4 @@ openai-whisper
 transformers
 torch
 gunicorn
+flask_sqlalchemy
