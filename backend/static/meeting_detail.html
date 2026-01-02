@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Meeting Detail | Memora</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f5f7fb;
+      display: flex;
+      height: 100vh;
+      color: #1f2937;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: linear-gradient(180deg, #0f172a, #1e293b);
+      color: white;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 32px;
+    }
+
+    .nav a {
+      display: block;
+      padding: 12px 16px;
+      border-radius: 10px;
+      color: #cbd5f5;
+      text-decoration: none;
+      margin-bottom: 8px;
+    }
+
+    .nav a.active,
+    .nav a:hover {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .privacy {
+      margin-top: auto;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 12px;
+    }
+
+    .breadcrumb a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .breadcrumb span {
+      margin: 0 6px;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 28px;
+    }
+
+    .meta {
+      color: #6b7280;
+      margin-bottom: 24px;
+    }
+
+    /* Cards */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      font-size: 14px;
+      background: #f9fafb;
+      padding: 12px;
+      border-radius: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    ul {
+      padding-left: 18px;
+    }
+
+    li {
+      cursor: pointer;
+      margin-bottom: 6px;
+    }
+
+    .done {
+      text-decoration: line-through;
+      color: #9ca3af;
+    }
+
+    .empty {
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    /* Editable */
+    [contenteditable="true"] {
+      outline: none;
+      border-bottom: 1px dashed transparent;
+    }
+
+    [contenteditable="true"]:focus {
+      border-bottom: 1px dashed #2563eb;
+    }
+
+    /* Transcript search */
+    .search-box {
+      margin-bottom: 12px;
+    }
+
+    .highlight {
+      background: yellow;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">Memora</div>
+
+    <nav class="nav">
+      <a href="/">Dashboard</a>
+      <a href="/recording">New Recording</a>
+      <a href="/meetings" class="active">All Meetings</a>
+    </nav>
+
+    <div class="privacy">
+      ● 100% Private<br>
+      Data stored locally
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="/">Dashboard</a>
+      <span>›</span>
+      <a href="/meetings">All Meetings</a>
+      <span>›</span>
+      <span id="crumbTitle">Meeting</span>
+    </div>
+
+    <h1 id="title">Meeting</h1>
+    <div id="meta" class="meta"></div>
+
+    <div class="grid">
+
+      <!-- Summary -->
+      <div class="card">
+        <h3>Summary</h3>
+        <p id="summary"
+           contenteditable="true"
+           class="empty">
+          Loading summary…
+        </p>
+      </div>
+
+      <!-- Action Items -->
+      <div class="card">
+        <h3>Action Items</h3>
+        <ul id="actions">
+          <li class="empty">Loading action items…</li>
+        </ul>
+      </div>
+
+      <!-- Transcript -->
+      <div class="card full">
+        <h3>Transcript</h3>
+
+        <input
+          id="searchInput"
+          class="search-box"
+          placeholder="Search transcript..."
+          oninput="searchTranscript()"
+        />
+
+        <pre id="transcript">Loading transcript…</pre>
+      </div>
+
+    </div>
+  </main>
+
+<script>
+const id = location.pathname.split("/").pop();
+let originalTranscript = "";
+
+fetch(`/api/meeting/${id}`)
+  .then(res => res.json())
+  .then(m => {
+    document.getElementById("title").innerText = m.title;
+    document.getElementById("crumbTitle").innerText = m.title;
+    document.getElementById("meta").innerText = `${m.date} · ${m.duration}`;
+
+    const summary = document.getElementById("summary");
+    summary.innerText = m.summary || "No summary available.";
+    summary.onblur = () => updateMeeting("summary", summary.innerText);
+
+    const actionsBox = document.getElementById("actions");
+    actionsBox.innerHTML = "";
+
+    if (m.actions.length) {
+      m.actions.forEach((a, i) => {
+        const li = document.createElement("li");
+        li.innerText = a;
+        if (a.startsWith("[x]")) li.classList.add("done");
+
+        li.onclick = () => toggleAction(i, li);
+        actionsBox.appendChild(li);
+      });
+    } else {
+      actionsBox.innerHTML =
+        `<li class="empty">No action items</li>`;
+    }
+
+    originalTranscript = m.transcript || "";
+    document.getElementById("transcript").innerText = originalTranscript;
+  });
+
+function updateMeeting(field, value) {
+  fetch("/api/meetings/update", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, field, value })
+  });
+}
+
+function toggleAction(index, el) {
+  let text = el.innerText;
+  if (text.startsWith("[x]")) {
+    text = text.replace("[x] ", "");
+    el.classList.remove("done");
+  } else {
+    text = "[x] " + text;
+    el.classList.add("done");
+  }
+
+  el.innerText = text;
+
+  fetch("/api/meetings/update-action", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, index, value: text })
+  });
+}
+
+function searchTranscript() {
+  const q = document.getElementById("searchInput").value.trim();
+  const box = document.getElementById("transcript");
+
+  if (!q) {
+    box.innerText = originalTranscript;
+    return;
+  }
+
+  const regex = new RegExp(`(${q})`, "gi");
+  box.innerHTML = originalTranscript.replace(
+    regex,
+    `<span class="highlight">$1</span>`
+  );
+}
+</script>
+
+</body>
+</html>
